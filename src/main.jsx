@@ -8,6 +8,7 @@ const money2 = (n) => new Intl.NumberFormat('en-US', { style: 'currency', curren
 const fmtDate = (d) => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(d);
 
 const seed = {
+  schemaVersion: 2,
   budget: { weeklyBudget: 500, startingBalance: 0, contingencyPct: 12 },
   projects: [
     {
@@ -40,21 +41,30 @@ const seed = {
     },
     {
       id: uid(), name: 'Living Room BESTÅ Wall', icon: '📺', priority: 3, labor: 0,
-      notes: 'Recovered design: asymmetrical built-in on a 175-in wall with a 95-in ceiling and an 85-in wall-mounted TV. Planned installation width is 165 3/8 in, leaving about 4 3/4 in reveal at each end. Exact door/front/shelf/rail finish selections still need to be locked before treating the IKEA material total as final.',
+      notes: 'Near-complete IKEA estimate based on the recovered design from our Modular Setup Design conversation: 11 BESTÅ frames total, brown/walnut-effect LAPPVIKEN fronts, push-open/soft-close hinges, tower shelves, top panels and a conservative suspension-rail allowance. Current seeded IKEA materials total about $1,125 before tax/delivery. Labor remains $0 until contractor quotes arrive.',
       specs: [
         'Wall: 175 in wide × 95 in high',
         'TV: 85 in, stays wall-mounted',
-        'Overall cabinetry width: 165 3/8 in',
-        'Approx. side reveals: 4 3/4 in each end',
-        'TV zone: 94 1/2 in wide (four 23 5/8-in modules)',
-        'Right-side tall tower: 23 5/8 in wide',
-        'Side console: 47 1/4 in wide',
-        'Vertical concept: ~8–10 in breathing room above, 15-in upper BESTÅ cabinets, TV niche, 15-in lower BESTÅ cabinets, ~4–6 in plinth/toe-kick'
+        'Overall cabinetry width: 165 3/8 in with ~4 3/4 in reveal at each end',
+        'TV zone: 94 1/2 in wide = four 23 5/8-in lower modules',
+        'Right tower: one 23 5/8-in-wide × 75 5/8-in-high BESTÅ frame',
+        'Right-side console: 47 1/4 in wide = two 23 5/8-in lower modules',
+        'Upper bridge: four shallow 23 5/8 × 7 7/8 × 15 in BESTÅ frames',
+        'Fronts: 10 × LAPPVIKEN brown/walnut-effect 23 5/8 × 15 in + 3 × 23 5/8 × 25 1/4 in tower doors',
+        'Push-open hinges mean handles are not required',
+        'Rail count is intentionally conservative at 10: 4 are needed for the upper bridge; up to 6 more are used if the lower cabinets are wall-hung rather than set on a plinth',
+        'Estimate excludes sales tax, delivery, custom filler/plinth/trim, wall fasteners selected for your wall type, electrical/cable work and contractor labor'
       ],
       parts: [
-        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 15 3/4 × 15 in — candidate module', qty: 4, unitPrice: 45.00, url: 'https://www.ikea.com/us/en/p/besta-frame-white-70245848/' },
-        { id: uid(), name: 'BESTÅ frame, white, 47 1/4 × 15 3/4 × 15 in — side-console candidate', qty: 1, unitPrice: 65.00, url: 'https://www.ikea.com/us/en/p/besta-frame-white-60245844/' },
-        { id: uid(), name: 'BESTÅ tall-tower / additional upper-lower frames, fronts, shelves, hinges & suspension rails — finalize configuration', qty: 1, unitPrice: 0, url: 'https://www.ikea.com/us/en/cat/besta-storage-system-46053/' }
+        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 15 3/4 × 15 in — TV base + side console', qty: 6, unitPrice: 45.00, url: 'https://www.ikea.com/us/en/p/besta-frame-white-70245848/' },
+        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 7 7/8 × 15 in — shallow upper bridge', qty: 4, unitPrice: 35.00, url: 'https://www.ikea.com/us/en/p/besta-frame-white-00245917/' },
+        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 15 3/4 × 75 5/8 in — tall tower', qty: 1, unitPrice: 90.00, url: 'https://www.ikea.com/us/en/p/besta-frame-white-00245842/' },
+        { id: uid(), name: 'LAPPVIKEN door/drawer front, brown/walnut effect, 23 5/8 × 15 in', qty: 10, unitPrice: 15.00, url: 'https://www.ikea.com/us/en/p/lappviken-door-drawer-front-brown-walnut-effect-80628733/' },
+        { id: uid(), name: 'LAPPVIKEN door, brown/walnut effect, 23 5/8 × 25 1/4 in — tower', qty: 3, unitPrice: 20.00, url: 'https://www.ikea.com/us/en/p/lappviken-door-brown-walnut-effect-00628732/' },
+        { id: uid(), name: 'BESTÅ soft closing / push-open hinge, 2-pack — one pack per door/front', qty: 13, unitPrice: 15.00, url: 'https://www.ikea.com/us/en/p/besta-soft-closing-push-open-hinge-80261258/' },
+        { id: uid(), name: 'BESTÅ suspension rail, 23 5/8 in — conservative wall-mount allowance', qty: 10, unitPrice: 10.00, url: 'https://www.ikea.com/us/en/p/besta-suspension-rail-silver-color-70488318/' },
+        { id: uid(), name: 'BESTÅ shelf, white, 22 × 14 1/8 in — tower interior', qty: 3, unitPrice: 15.00, url: 'https://www.ikea.com/us/en/p/besta-shelf-white-00295554/' },
+        { id: uid(), name: 'BESTÅ top panel, brown/walnut, 47 1/4 × 16 1/2 in — TV base + side console', qty: 3, unitPrice: 25.00, url: 'https://www.ikea.com/us/en/cat/besta-all-parts-accessories-700278/' }
       ]
     }
   ]
@@ -66,7 +76,7 @@ function App() {
   const [data, setData] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('home-project-plan'));
-      const hasCurrentSeed = stored?.projects?.some(p => p.name === 'Craftsman Interior Doors' && p.parts?.some(x => Number(x.unitPrice) === 124));
+      const hasCurrentSeed = stored?.schemaVersion === seed.schemaVersion;
       return hasCurrentSeed ? stored : seed;
     } catch { return seed; }
   });
