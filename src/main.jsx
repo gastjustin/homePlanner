@@ -72,6 +72,64 @@ const seed = {
 
 function partTotal(project) { return project.parts.reduce((s, p) => s + Number(p.qty || 0) * Number(p.unitPrice || 0), 0); }
 
+function ReportView({ data, schedule, totals, onBack }) {
+  const projects = [...data.projects].sort((a, b) => a.priority - b.priority);
+  const generated = fmtDate(new Date());
+  return <div className="app reportPage">
+    <div className="reportBar no-print">
+      <button className="secondary" onClick={onBack}>← Back to planner</button>
+      <button className="primary" onClick={() => window.print()}>🖨️ Print</button>
+    </div>
+    <main className="reportMain">
+      <header className="reportHead">
+        <div className="eyebrow">OUR HOME · MATERIALS &amp; PRICING REPORT</div>
+        <h1>Home Project Materials List</h1>
+        <p>Generated {generated} · {projects.length} project{projects.length === 1 ? '' : 's'}</p>
+      </header>
+
+      <table className="reportSummary">
+        <tbody>
+          <tr><td>Weekly budget</td><td>{money(data.budget.weeklyBudget)}</td></tr>
+          <tr><td>Already saved</td><td>{money(data.budget.startingBalance)}</td></tr>
+          <tr><td>Contingency</td><td>{data.budget.contingencyPct}%</td></tr>
+          <tr><td>Materials total</td><td>{money2(totals.materials)}</td></tr>
+          <tr><td>Labor total</td><td>{money2(totals.labor)}</td></tr>
+          <tr><td>Grand total (with contingency)</td><td><strong>{money2(totals.total)}</strong></td></tr>
+          <tr><td>Projected runway</td><td>{schedule.at(-1)?.cumulativeWeeks || 0} weeks</td></tr>
+        </tbody>
+      </table>
+
+      {projects.map((p) => {
+        const s = schedule.find(x => x.id === p.id);
+        return <section className="reportProject" key={p.id}>
+          <div className="reportProjectHead">
+            <div><small>PRIORITY {p.priority}</small><h2>{p.icon} {p.name}</h2></div>
+            <div className="reportProjectTotal">{money2(s?.total)}</div>
+          </div>
+          {p.notes && <p className="notes">{p.notes}</p>}
+          <table className="reportParts">
+            <thead><tr><th>Part</th><th>Qty</th><th>Each</th><th>Total</th></tr></thead>
+            <tbody>
+              {p.parts.map(part => <tr key={part.id}>
+                <td>{part.name}</td>
+                <td>{part.qty}</td>
+                <td>{money2(part.unitPrice)}</td>
+                <td>{money2(Number(part.qty) * Number(part.unitPrice))}</td>
+              </tr>)}
+            </tbody>
+            <tfoot>
+              <tr><td colSpan={3}>Materials</td><td>{money2(s?.materials)}</td></tr>
+              <tr><td colSpan={3}>Labor</td><td>{money2(s?.labor)}</td></tr>
+              <tr><td colSpan={3}>Contingency</td><td>{money2(s?.contingency)}</td></tr>
+              <tr className="reportGrandRow"><td colSpan={3}>Project total</td><td>{money2(s?.total)}</td></tr>
+            </tfoot>
+          </table>
+        </section>;
+      })}
+    </main>
+  </div>;
+}
+
 function App() {
   const [data, setData] = useState(() => {
     try {
@@ -83,6 +141,7 @@ function App() {
   const [aiText, setAiText] = useState('');
   const [aiBusy, setAiBusy] = useState(false);
   const [showEditor, setShowEditor] = useState(true);
+  const [view, setView] = useState('planner');
 
   useEffect(() => localStorage.setItem('home-project-plan', JSON.stringify(data)), [data]);
 
@@ -131,6 +190,10 @@ function App() {
     const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='home-project-plan.json'; a.click(); URL.revokeObjectURL(a.href);
   };
+
+  if (view === 'report') {
+    return <ReportView data={data} schedule={schedule} totals={totals} onBack={() => setView('planner')} />;
+  }
 
   return <div className="app">
     <header className="hero">
@@ -208,7 +271,7 @@ function App() {
         {aiText && <div className="aiOutput">{aiText}</div>}
       </section>
 
-      <footer><span>Built for our home.</span><div><button className="secondary" onClick={exportPlan}>Export plan JSON</button><button className="secondary" onClick={()=>{localStorage.removeItem('home-project-plan');location.reload()}}>Reset demo</button></div></footer>
+      <footer><span>Built for our home.</span><div><button className="secondary" onClick={()=>setView('report')}>🖨️ Materials report</button><button className="secondary" onClick={exportPlan}>Export plan JSON</button><button className="secondary" onClick={()=>{localStorage.removeItem('home-project-plan');location.reload()}}>Reset demo</button></div></footer>
     </main>
   </div>
 }
