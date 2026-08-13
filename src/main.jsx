@@ -115,7 +115,7 @@ const seed = {
       parts: [
         { id: uid(), name: 'VAXLAMP French Vintage Brass Glass Flower Chandelier — Type A 5-Light', qty: 1, unitPrice: 462.24, priceKnown: true, url: 'https://www.vaxlamp.com/products/chandelier-french-vintage-brass-glass-flower' }
       ]
-    },,
+    },
     {
       id: uid(), name: 'Bathroom Remodel', icon: '🛁', priority: 10, labor: 0, laborKnown: false,
       notes: 'Full bathroom remodel coordinated in white, marble-look surfaces, matte black fixtures, clear shower glass and light wood-look porcelain flooring. Major selected components total about $4,764; use $5,000–$5,500 as the working materials budget. Labor is TBD. Keep the basic plumbing layout unchanged where practical. Do not order the shower base until its drain rough-in is verified against DreamLine technical drawings.',
@@ -157,8 +157,10 @@ function App() {
   const [data, setData] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('home-project-plan'));
-      const hasCurrentSeed = stored?.schemaVersion === seed.schemaVersion;
-      return hasCurrentSeed ? stored : seed;
+      const isValid = stored?.schemaVersion === seed.schemaVersion
+        && Array.isArray(stored?.projects)
+        && stored.projects.every(p => p && Array.isArray(p.parts));
+      return isValid ? stored : seed;
     } catch { return seed; }
   });
   const [aiText, setAiText] = useState('');
@@ -168,7 +170,7 @@ function App() {
   useEffect(() => localStorage.setItem('home-project-plan', JSON.stringify(data)), [data]);
 
   const schedule = useMemo(() => {
-    const ordered = [...data.projects].sort((a,b) => Number(a.priority)-Number(b.priority));
+    const ordered = data.projects.filter(p => p && Array.isArray(p.parts)).sort((a,b) => Number(a.priority)-Number(b.priority));
     const weekly = Math.max(1, Number(data.budget.weeklyBudget || 0));
     let available = Number(data.budget.startingBalance || 0);
     let elapsedWeeks = 0;
