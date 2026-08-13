@@ -115,7 +115,7 @@ const seed = {
       parts: [
         { id: uid(), name: 'VAXLAMP French Vintage Brass Glass Flower Chandelier — Type A 5-Light', qty: 1, unitPrice: 462.24, priceKnown: true, url: 'https://www.vaxlamp.com/products/chandelier-french-vintage-brass-glass-flower' }
       ]
-    },,
+    },
     {
       id: uid(), name: 'Bathroom Remodel', icon: '🛁', priority: 10, labor: 0, laborKnown: false,
       notes: 'Full bathroom remodel coordinated in white, marble-look surfaces, matte black fixtures, clear shower glass and light wood-look porcelain flooring. Major selected components total about $4,764; use $5,000–$5,500 as the working materials budget. Labor is TBD. Keep the basic plumbing layout unchanged where practical. Do not order the shower base until its drain rough-in is verified against DreamLine technical drawings.',
