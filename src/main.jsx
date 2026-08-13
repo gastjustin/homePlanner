@@ -8,11 +8,11 @@ const money2 = (n) => new Intl.NumberFormat('en-US', { style: 'currency', curren
 const fmtDate = (d) => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(d);
 
 const seed = {
-  schemaVersion: 2,
+  schemaVersion: 7,
   budget: { weeklyBudget: 500, startingBalance: 0, contingencyPct: 12 },
   projects: [
     {
-      id: uid(), name: 'Craftsman Interior Doors', icon: '🚪', priority: 1, labor: 0,
+      id: uid(), name: 'Craftsman Interior Doors', icon: '🚪', priority: 1, labor: 0, laborKnown: false,
       notes: '9 RELIABILT 3-panel Craftsman primed smooth hollow-core molded-composite interior slab doors: 6 × 32×80, 2 × 24×80, 1 × 30×80. Labor estimate pending. Pricing is seeded from the Lowe\'s products we identified; verify local-store pricing before ordering.',
       specs: [
         'Style: RELIABILT 3-panel Craftsman, smooth primed molded composite',
@@ -21,13 +21,13 @@ const seed = {
         'Door slabs are not a labor quote; installation remains $0 until contractor estimates arrive'
       ],
       parts: [
-        { id: uid(), name: 'RELIABILT 32-in × 80-in Primed 3-panel Craftsman Hollow-Core Slab Door', qty: 6, unitPrice: 124.00, url: 'https://www.lowes.com/pd/RELIABILT-32-in-x-80-in-White-3-panel-Craftsman-Hollow-Core-Molded-Composite-Slab-Door/5014873041' },
-        { id: uid(), name: 'RELIABILT 24-in × 80-in Primed 3-panel Craftsman Hollow-Core Slab Door', qty: 2, unitPrice: 109.00, url: 'https://www.lowes.com/pd/ReliaBilt-White-3-Panel-Craftsman-Hollow-Core-Molded-Composite-Slab-Door-Common-24-in-x-80-in-Actual-24-in-x-80-in/3550826' },
-        { id: uid(), name: 'RELIABILT 30-in × 80-in Primed 3-panel Craftsman Hollow-Core Slab Door', qty: 1, unitPrice: 119.00, url: 'https://www.lowes.com/pd/ReliaBilt-White-3-Panel-Craftsman-Hollow-Core-Molded-Composite-Slab-Door-Common-30-in-x-80-in-Actual-30-in-x-80-in/3550820' }
+        { id: uid(), name: 'RELIABILT 32-in × 80-in Primed 3-panel Craftsman Hollow-Core Slab Door', qty: 6, unitPrice: 124.00, priceKnown: true, url: 'https://www.lowes.com/pd/RELIABILT-32-in-x-80-in-White-3-panel-Craftsman-Hollow-Core-Molded-Composite-Slab-Door/5014873041' },
+        { id: uid(), name: 'RELIABILT 24-in × 80-in Primed 3-panel Craftsman Hollow-Core Slab Door', qty: 2, unitPrice: 109.00, priceKnown: true, url: 'https://www.lowes.com/pd/ReliaBilt-White-3-Panel-Craftsman-Hollow-Core-Molded-Composite-Slab-Door-Common-24-in-x-80-in-Actual-24-in-x-80-in/3550826' },
+        { id: uid(), name: 'RELIABILT 30-in × 80-in Primed 3-panel Craftsman Hollow-Core Slab Door', qty: 1, unitPrice: 119.00, priceKnown: true, url: 'https://www.lowes.com/pd/ReliaBilt-White-3-Panel-Craftsman-Hollow-Core-Molded-Composite-Slab-Door-Common-30-in-x-80-in-Actual-30-in-x-80-in/3550820' }
       ]
     },
     {
-      id: uid(), name: 'Upstairs Baseboards', icon: '🪚', priority: 2, labor: 0,
+      id: uid(), name: 'Upstairs Baseboards', icon: '🪚', priority: 2, labor: 0, laborKnown: false,
       notes: 'Replace about 600 linear ft of existing ~6-in-high × 1/2-in-thick baseboard. Planning with ~15% waste, so the material target is about 690 linear ft. Labor/removal/caulk/fill/paint estimate pending.',
       specs: [
         'Existing profile: about 6 in high × 1/2 in thick',
@@ -36,11 +36,11 @@ const seed = {
         '58 × 12-ft boards = 696 linear ft total'
       ],
       parts: [
-        { id: uid(), name: 'RELIABILT 1/2-in × 5-1/2-in × 12-ft Craftsman Primed MDF Baseboard', qty: 58, unitPrice: 12.98, url: 'https://www.lowes.com/pd/Craftsman-5-1-2-in-x-12-ft-Primed-MDF-Baseboard-Moulding-Actual-5-5-in-x-12-ft/1000460529' }
+        { id: uid(), name: 'RELIABILT 1/2-in × 5-1/2-in × 12-ft Craftsman Primed MDF Baseboard', qty: 58, unitPrice: 12.98, priceKnown: true, url: 'https://www.lowes.com/pd/Craftsman-5-1-2-in-x-12-ft-Primed-MDF-Baseboard-Moulding-Actual-5-5-in-x-12-ft/1000460529' }
       ]
     },
     {
-      id: uid(), name: 'Living Room BESTÅ Wall', icon: '📺', priority: 3, labor: 0,
+      id: uid(), name: 'Living Room BESTÅ Wall', icon: '📺', priority: 3, labor: 0, laborKnown: false,
       notes: 'Near-complete IKEA estimate based on the recovered design from our Modular Setup Design conversation: 11 BESTÅ frames total, brown/walnut-effect LAPPVIKEN fronts, push-open/soft-close hinges, tower shelves, top panels and a conservative suspension-rail allowance. Current seeded IKEA materials total about $1,125 before tax/delivery. Labor remains $0 until contractor quotes arrive.',
       specs: [
         'Wall: 175 in wide × 95 in high',
@@ -56,79 +56,102 @@ const seed = {
         'Estimate excludes sales tax, delivery, custom filler/plinth/trim, wall fasteners selected for your wall type, electrical/cable work and contractor labor'
       ],
       parts: [
-        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 15 3/4 × 15 in — TV base + side console', qty: 6, unitPrice: 45.00, url: 'https://www.ikea.com/us/en/p/besta-frame-white-70245848/' },
-        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 7 7/8 × 15 in — shallow upper bridge', qty: 4, unitPrice: 35.00, url: 'https://www.ikea.com/us/en/p/besta-frame-white-00245917/' },
-        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 15 3/4 × 75 5/8 in — tall tower', qty: 1, unitPrice: 90.00, url: 'https://www.ikea.com/us/en/p/besta-frame-white-00245842/' },
-        { id: uid(), name: 'LAPPVIKEN door/drawer front, brown/walnut effect, 23 5/8 × 15 in', qty: 10, unitPrice: 15.00, url: 'https://www.ikea.com/us/en/p/lappviken-door-drawer-front-brown-walnut-effect-80628733/' },
-        { id: uid(), name: 'LAPPVIKEN door, brown/walnut effect, 23 5/8 × 25 1/4 in — tower', qty: 3, unitPrice: 20.00, url: 'https://www.ikea.com/us/en/p/lappviken-door-brown-walnut-effect-00628732/' },
-        { id: uid(), name: 'BESTÅ soft closing / push-open hinge, 2-pack — one pack per door/front', qty: 13, unitPrice: 15.00, url: 'https://www.ikea.com/us/en/p/besta-soft-closing-push-open-hinge-80261258/' },
-        { id: uid(), name: 'BESTÅ suspension rail, 23 5/8 in — conservative wall-mount allowance', qty: 10, unitPrice: 10.00, url: 'https://www.ikea.com/us/en/p/besta-suspension-rail-silver-color-70488318/' },
-        { id: uid(), name: 'BESTÅ shelf, white, 22 × 14 1/8 in — tower interior', qty: 3, unitPrice: 15.00, url: 'https://www.ikea.com/us/en/p/besta-shelf-white-00295554/' },
-        { id: uid(), name: 'BESTÅ top panel, brown/walnut, 47 1/4 × 16 1/2 in — TV base + side console', qty: 3, unitPrice: 25.00, url: 'https://www.ikea.com/us/en/cat/besta-all-parts-accessories-700278/' }
+        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 15 3/4 × 15 in — TV base + side console', qty: 6, unitPrice: 45.00, priceKnown: true, url: 'https://www.ikea.com/us/en/p/besta-frame-white-70245848/' },
+        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 7 7/8 × 15 in — shallow upper bridge', qty: 4, unitPrice: 35.00, priceKnown: true, url: 'https://www.ikea.com/us/en/p/besta-frame-white-00245917/' },
+        { id: uid(), name: 'BESTÅ frame, white, 23 5/8 × 15 3/4 × 75 5/8 in — tall tower', qty: 1, unitPrice: 90.00, priceKnown: true, url: 'https://www.ikea.com/us/en/p/besta-frame-white-00245842/' },
+        { id: uid(), name: 'LAPPVIKEN door/drawer front, brown/walnut effect, 23 5/8 × 15 in', qty: 10, unitPrice: 15.00, priceKnown: true, url: 'https://www.ikea.com/us/en/p/lappviken-door-drawer-front-brown-walnut-effect-80628733/' },
+        { id: uid(), name: 'LAPPVIKEN door, brown/walnut effect, 23 5/8 × 25 1/4 in — tower', qty: 3, unitPrice: 20.00, priceKnown: true, url: 'https://www.ikea.com/us/en/p/lappviken-door-brown-walnut-effect-00628732/' },
+        { id: uid(), name: 'BESTÅ soft closing / push-open hinge, 2-pack — one pack per door/front', qty: 13, unitPrice: 15.00, priceKnown: true, url: 'https://www.ikea.com/us/en/p/besta-soft-closing-push-open-hinge-80261258/' },
+        { id: uid(), name: 'BESTÅ suspension rail, 23 5/8 in — conservative wall-mount allowance', qty: 10, unitPrice: 10.00, priceKnown: true, url: 'https://www.ikea.com/us/en/p/besta-suspension-rail-silver-color-70488318/' },
+        { id: uid(), name: 'BESTÅ shelf, white, 22 × 14 1/8 in — tower interior', qty: 3, unitPrice: 15.00, priceKnown: true, url: 'https://www.ikea.com/us/en/p/besta-shelf-white-00295554/' },
+        { id: uid(), name: 'BESTÅ top panel, brown/walnut, 47 1/4 × 16 1/2 in — TV base + side console', qty: 3, unitPrice: 25.00, priceKnown: true, url: 'https://www.ikea.com/us/en/cat/besta-all-parts-accessories-700278/' }
       ]
-    }
+    },
+    {
+      id: uid(), name: 'Front Entry Door', icon: '🚪', priority: 4, labor: 0, laborKnown: false,
+      notes: 'Krosswood 70 × 80 in Knotty Alder prehung front-entry door. Exact product price/link still needs to be matched from the original saved item; labor estimate pending.',
+      specs: ['70 × 80 in prehung exterior door','Knotty Alder','Provincial stain','Clear glass','Left-hand inswing','Status: needs exact product pricing + labor quote'],
+      parts: [{ id: uid(), name: 'Krosswood 70 × 80 Knotty Alder prehung entry door — exact configuration', qty: 1, unitPrice: 0, priceKnown: false, url: '' }]
+    },
+    {
+      id: uid(), name: 'Patio Sliding Door', icon: '🌤️', priority: 5, labor: 0, laborKnown: false,
+      notes: 'Pella 150 Series 72 × 80 in sliding patio door with integrated blinds. Seeded planning price is $1,398; verify current/local pricing before ordering. Labor estimate pending.',
+      specs: ['72 × 80 in','Pella 150 Series','White vinyl','Low-E glass','Integrated between-glass blinds','Left-hand sliding operation','Status: materials priced; needs labor quote'],
+      parts: [{ id: uid(), name: 'Pella 150 Series 72 × 80 Sliding Patio Door with Blinds, left-hand', qty: 1, unitPrice: 1398, priceKnown: true, url: 'https://www.lowes.com/pd/Pella-150-SPD-LH-72X80-IN-SNDF-BBG-HP/5015113651' }]
+    },
+    {
+      id: uid(), name: 'Back Entry Door', icon: '🚪', priority: 6, labor: 0, laborKnown: false,
+      notes: 'MMI DOOR 36 × 80 in fiberglass prehung back-entry door. Price is intentionally left at $0 until the exact saved configuration is positively matched. Labor estimate pending.',
+      specs: ['36 × 80 in prehung exterior door','Fiberglass','3/4-lite','Internal blinds','Left-hand inswing','Status: needs exact product pricing + labor quote'],
+      parts: [{ id: uid(), name: 'MMI DOOR 36 × 80 Fiberglass Prehung Door with Internal Blinds — exact configuration', qty: 1, unitPrice: 0, priceKnown: false, url: '' }]
+    },
+    {
+      id: uid(), name: 'Closet Shelving & Organization', icon: '👚', priority: 7, labor: 0, laborKnown: false,
+      notes: 'Closet organization project centered on IKEA BOAXEL with wood shelving, black woven baskets and rechargeable warm-white motion lighting. Some exact quantities, measurements and product URLs still need to be finalized.',
+      specs: ['Primary system: IKEA BOAXEL modular closet system','Wood options noted: 1 × 12 × 6 ft common pine and/or 3/4-in walnut plywood','Also noted: Rubbermaid Twin Track uprights + 11 1/2-in brackets','Rechargeable warm-white motion lights','Black woven Target baskets','Status: needs closet measurements, final quantities/pricing + labor quote'],
+      parts: [
+        { id: uid(), name: 'IKEA BOAXEL wardrobe combination — planning allowance', qty: 1, unitPrice: 438, priceKnown: true, url: 'https://www.ikea.com/us/en/p/boaxel-wardrobe-combination-white-s09465641/' },
+        { id: uid(), name: '1 × 12 × 6 ft Common Pine Board — quantity TBD', qty: 0, unitPrice: 0, priceKnown: false, url: 'https://www.homedepot.com/p/100322336' },
+        { id: uid(), name: 'Rubbermaid Twin Track uprights — quantity/product TBD', qty: 0, unitPrice: 0, priceKnown: false, url: '' },
+        { id: uid(), name: 'Rubbermaid 11 1/2-in brackets — quantity/product TBD', qty: 0, unitPrice: 0, priceKnown: false, url: '' },
+        { id: uid(), name: '3/4-in walnut plywood — quantity/product TBD', qty: 0, unitPrice: 0, priceKnown: false, url: '' },
+        { id: uid(), name: 'Rechargeable warm-white motion lights — quantity/product TBD', qty: 0, unitPrice: 0, priceKnown: false, url: '' },
+        { id: uid(), name: 'Black woven Target baskets — quantity/product TBD', qty: 0, unitPrice: 0, priceKnown: false, url: '' }
+      ]
+    },
+    {
+      id: uid(), name: 'Hallway Light', icon: '💡', priority: 8, labor: 0, laborKnown: false,
+      notes: 'Replace the hallway ceiling fixture with the Anthropologie Simone Scalloped Globe Flush Mount. Current product price checked Aug. 13, 2026: $298 before tax. The fixture is hardwired and Anthropologie specifies professional installation, so labor remains TBD until a handyman/electrician quote is entered.',
+      specs: ['Anthropologie Simone Scalloped Globe Flush Mount','Selected finish: Brass','Iron fixture with glass shade','Dimmable and LED-dimmable compatible','E26 Type A bulb: 40W or LED 5W','UL listed; dry rated','Hardware and mounting plate included','Hardwired; professional installation recommended','Status: fixture priced; needs installation quote'],
+      parts: [
+        { id: uid(), name: 'Simone Scalloped Globe Flush Mount — Brass', qty: 1, unitPrice: 298, priceKnown: true, url: 'https://www.anthropologie.com/anthrohome/shop/simone-scalloped-globe-flush-mount' },
+        { id: uid(), name: 'E26 LED bulb — optional / exact bulb TBD', qty: 0, unitPrice: 0, priceKnown: false, url: '' }
+      ]
+    },
+    {
+      id: uid(), name: 'Entryway Light', icon: '✨', priority: 9, labor: 0, laborKnown: false,
+      notes: 'Replace the entryway ceiling fixture with the VAXLAMP French Vintage Brass Glass Flower Chandelier. The product page currently defaults to the Type A 5-light, 19.69-in diameter version at $462.24 before tax. Other 6-light and 8-light configurations are available and may change the final fixture price, so update this item if a different size is selected. Labor remains TBD until an installation quote is entered.',
+      specs: ['VAXLAMP French Vintage Brass Glass Flower Chandelier — SKU BCL01301 / BCL013','Planning variant: Type A, 5 lights, 19.69-in diameter','Materials: brass + glass; gold finish','E14 bulbs included','Adjustable color temperature: warm / neutral / white','110V–240V','Standard product is non-dimmable; VAXLAMP says dimming customization can be requested','Free shipping listed for U.S. orders','1-year manufacturer limited warranty','Status: 5-light fixture priced; needs final variant confirmation + installation quote'],
+      parts: [
+        { id: uid(), name: 'VAXLAMP French Vintage Brass Glass Flower Chandelier — Type A 5-Light', qty: 1, unitPrice: 462.24, priceKnown: true, url: 'https://www.vaxlamp.com/products/chandelier-french-vintage-brass-glass-flower' }
+      ]
+    },,
+    {
+      id: uid(), name: 'Bathroom Remodel', icon: '🛁', priority: 10, labor: 0, laborKnown: false,
+      notes: 'Full bathroom remodel coordinated in white, marble-look surfaces, matte black fixtures, clear shower glass and light wood-look porcelain flooring. Major selected components total about $4,764; use $5,000–$5,500 as the working materials budget. Labor is TBD. Keep the basic plumbing layout unchanged where practical. Do not order the shower base until its drain rough-in is verified against DreamLine technical drawings.',
+      specs: [
+        'Room: 142 in wide × 59 in deep × 95 in high; 30-in door about 4 in from adjacent wall',
+        'Entering room: vanity directly ahead; toilet to the left; shower at far left',
+        'Existing vanity: 64 W × 22 D × 31 H; new vanity: 60 W × 19 D × 34.5 H',
+        'Existing shower: ~48 × 59 in; proposed shower: ~60 W × 34 D in',
+        'Existing shower drain: ~28 in from back wall and ~20.5 in from left wall — VERIFY before ordering base',
+        'Design: white cabinetry + white/gray marble + matte black hardware + clear glass + light oak/greige flooring',
+        'Verify finished shower opening after demolition before ordering glass',
+        'Confirm vanity plumbing locations work with Doveton rear framing',
+        'Select exact flooring and exact Delta shower valve/trim package before ordering',
+        'Confirm final material quantities after demolition reveals wall/subfloor condition'
+      ],
+      parts: [
+        { id: uid(), name: 'Home Decorators Collection Doveton 60-in Double Vanity — White (Internet #321491137)', qty: 1, unitPrice: 899, priceKnown: true, url: 'https://www.homedepot.com/p/321491137' },
+        { id: uid(), name: 'Delta Foundations Design Series Modern 8-in Widespread Faucet — Matte Black (35904LF-BL)', qty: 2, unitPrice: 129, priceKnown: true, url: 'https://www.homedepot.com/p/338040364' },
+        { id: uid(), name: 'niveal 60 × 36 Rectangular Vanity Mirror — Matte Black', qty: 1, unitPrice: 259.99, priceKnown: true, url: 'https://www.homedepot.com/p/323440633' },
+        { id: uid(), name: 'Home Decorators Collection Insdale 4-Light Vanity Fixture — Matte Black', qty: 1, unitPrice: 72, priceKnown: true, url: 'https://www.homedepot.com/p/316723426' },
+        { id: uid(), name: 'DreamLine SlimLine 60 × 34 Single-Threshold Shower Base — White, left drain (DLT-1134601) — VERIFY DRAIN FIRST', qty: 1, unitPrice: 387, priceKnown: true, url: 'https://www.homedepot.com/p/204047513' },
+        { id: uid(), name: 'FlexStone Royale 60 × 36 × 80 Shower Surround — Calacatta White', qty: 1, unitPrice: 1115, priceKnown: true, url: 'https://www.homedepot.com/p/304669705' },
+        { id: uid(), name: 'ANZZI Kahn Series Frameless Sliding Shower Door — Matte Black / Clear Glass', qty: 1, unitPrice: 448, priceKnown: true, url: 'https://www.homedepot.com/p/315094607' },
+        { id: uid(), name: 'Delta matte-black shower system — shower head + hand shower + valve/trim allowance; exact package TBD', qty: 1, unitPrice: 250, priceKnown: false, url: '' },
+        { id: uid(), name: 'Light oak / greige wood-look porcelain flooring — 55–60 sq ft allowance; exact SKU TBD', qty: 1, unitPrice: 275, priceKnown: false, url: '' },
+        { id: uid(), name: 'Matte-black bathroom accessories — towel ring/bar/hooks, TP holder, door/shower accessories allowance', qty: 1, unitPrice: 150, priceKnown: false, url: '' },
+        { id: uid(), name: 'Misc. installation materials — drains, P-traps, supplies, silicone, repair, trim, paint, electrical, mortar/grout, transition', qty: 1, unitPrice: 650, priceKnown: false, url: '' }
+      ]
+    },
   ]
 };
 
 function partTotal(project) { return project.parts.reduce((s, p) => s + Number(p.qty || 0) * Number(p.unitPrice || 0), 0); }
-
-function ReportView({ data, schedule, totals, onBack }) {
-  const projects = [...data.projects].sort((a, b) => a.priority - b.priority);
-  const generated = fmtDate(new Date());
-  return <div className="app reportPage">
-    <div className="reportBar no-print">
-      <button className="secondary" onClick={onBack}>← Back to planner</button>
-      <button className="primary" onClick={() => window.print()}>🖨️ Print</button>
-    </div>
-    <main className="reportMain">
-      <header className="reportHead">
-        <div className="eyebrow">OUR HOME · MATERIALS &amp; PRICING REPORT</div>
-        <h1>Home Project Materials List</h1>
-        <p>Generated {generated} · {projects.length} project{projects.length === 1 ? '' : 's'}</p>
-      </header>
-
-      <table className="reportSummary">
-        <tbody>
-          <tr><td>Weekly budget</td><td>{money(data.budget.weeklyBudget)}</td></tr>
-          <tr><td>Already saved</td><td>{money(data.budget.startingBalance)}</td></tr>
-          <tr><td>Contingency</td><td>{data.budget.contingencyPct}%</td></tr>
-          <tr><td>Materials total</td><td>{money2(totals.materials)}</td></tr>
-          <tr><td>Labor total</td><td>{money2(totals.labor)}</td></tr>
-          <tr><td>Grand total (with contingency)</td><td><strong>{money2(totals.total)}</strong></td></tr>
-          <tr><td>Projected runway</td><td>{schedule.at(-1)?.cumulativeWeeks || 0} weeks</td></tr>
-        </tbody>
-      </table>
-
-      {projects.map((p) => {
-        const s = schedule.find(x => x.id === p.id);
-        return <section className="reportProject" key={p.id}>
-          <div className="reportProjectHead">
-            <div><small>PRIORITY {p.priority}</small><h2>{p.icon} {p.name}</h2></div>
-            <div className="reportProjectTotal">{money2(s?.total)}</div>
-          </div>
-          {p.notes && <p className="notes">{p.notes}</p>}
-          <table className="reportParts">
-            <thead><tr><th>Part</th><th>Qty</th><th>Each</th><th>Total</th></tr></thead>
-            <tbody>
-              {p.parts.map(part => <tr key={part.id}>
-                <td>{part.name}</td>
-                <td>{part.qty}</td>
-                <td>{money2(part.unitPrice)}</td>
-                <td>{money2(Number(part.qty) * Number(part.unitPrice))}</td>
-              </tr>)}
-            </tbody>
-            <tfoot>
-              <tr><td colSpan={3}>Materials</td><td>{money2(s?.materials)}</td></tr>
-              <tr><td colSpan={3}>Labor</td><td>{money2(s?.labor)}</td></tr>
-              <tr><td colSpan={3}>Contingency</td><td>{money2(s?.contingency)}</td></tr>
-              <tr className="reportGrandRow"><td colSpan={3}>Project total</td><td>{money2(s?.total)}</td></tr>
-            </tfoot>
-          </table>
-        </section>;
-      })}
-    </main>
-  </div>;
-}
+function partIsKnown(part) { return part.priceKnown === true; }
+function projectHasUnknowns(project) { return project.laborKnown !== true || project.parts.some(p => !partIsKnown(p) || Number(p.qty || 0) <= 0); }
+const priceDisplay = (value, known=true) => known ? money2(value) : 'TBD';
 
 function App() {
   const [data, setData] = useState(() => {
@@ -141,7 +164,6 @@ function App() {
   const [aiText, setAiText] = useState('');
   const [aiBusy, setAiBusy] = useState(false);
   const [showEditor, setShowEditor] = useState(true);
-  const [view, setView] = useState('planner');
 
   useEffect(() => localStorage.setItem('home-project-plan', JSON.stringify(data)), [data]);
 
@@ -161,7 +183,7 @@ function App() {
       elapsedWeeks += weeks;
       available = Math.max(0, available + weeks * weekly - total);
       const funded = new Date(today); funded.setDate(today.getDate() + elapsedWeeks * 7);
-      return { id: p.id, name: p.name, materials, labor: Number(p.labor||0), contingency, total, weeks, cumulativeWeeks: elapsedWeeks, fundedDate: fmtDate(funded) };
+      return { id: p.id, name: p.name, materials, labor: Number(p.labor||0), contingency, total, weeks, cumulativeWeeks: elapsedWeeks, fundedDate: fmtDate(funded), hasUnknowns: projectHasUnknowns(p) };
     });
   }, [data]);
 
@@ -170,9 +192,9 @@ function App() {
   const updateBudget = (key, value) => setData(d => ({...d, budget:{...d.budget,[key]:Number(value)}}));
   const updateProject = (id, patch) => setData(d => ({...d, projects:d.projects.map(p=>p.id===id?{...p,...patch}:p)}));
   const updatePart = (pid, partId, patch) => setData(d => ({...d, projects:d.projects.map(p=>p.id===pid?{...p,parts:p.parts.map(x=>x.id===partId?{...x,...patch}:x)}:p)}));
-  const addPart = (pid) => setData(d => ({...d, projects:d.projects.map(p=>p.id===pid?{...p,parts:[...p.parts,{id:uid(),name:'New item',qty:1,unitPrice:0,url:''}]}:p)}));
+  const addPart = (pid) => setData(d => ({...d, projects:d.projects.map(p=>p.id===pid?{...p,parts:[...p.parts,{id:uid(),name:'New item',qty:1,unitPrice:0,priceKnown:false,url:''}]}:p)}));
   const removePart = (pid, partId) => setData(d => ({...d, projects:d.projects.map(p=>p.id===pid?{...p,parts:p.parts.filter(x=>x.id!==partId)}:p)}));
-  const addProject = () => setData(d => ({...d, projects:[...d.projects,{id:uid(),name:'New Project',icon:'🏠',priority:d.projects.length+1,labor:0,notes:'',specs:[],parts:[]}]}));
+  const addProject = () => setData(d => ({...d, projects:[...d.projects,{id:uid(),name:'New Project',icon:'🏠',priority:d.projects.length+1,labor:0,laborKnown:false,notes:'',specs:[],parts:[]}]}));
   const removeProject = (id) => setData(d => ({...d,projects:d.projects.filter(p=>p.id!==id)}));
 
   const runAI = async () => {
@@ -190,10 +212,6 @@ function App() {
     const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='home-project-plan.json'; a.click(); URL.revokeObjectURL(a.href);
   };
-
-  if (view === 'report') {
-    return <ReportView data={data} schedule={schedule} totals={totals} onBack={() => setView('planner')} />;
-  }
 
   return <div className="app">
     <header className="hero">
@@ -231,7 +249,7 @@ function App() {
           <div className="dot">{i+1}</div>
           <div className="timelineCard">
             <div><small>PROJECT {i+1}</small><h3>{s.name}</h3></div>
-            <div className="timelineNumbers"><div><span>Target</span><strong>{s.fundedDate}</strong></div><div><span>Project total</span><strong>{money(s.total)}</strong></div><div><span>Funding time</span><strong>{s.weeks} wk</strong></div></div>
+            <div className="timelineNumbers"><div><span>Target</span><strong>{s.hasUnknowns?'Pending costs':s.fundedDate}</strong></div><div><span>Project total</span><strong>{s.hasUnknowns?`${money(s.total)}+`:money(s.total)}</strong></div><div><span>Funding time</span><strong>{s.hasUnknowns?`${s.weeks}+ wk`:`${s.weeks} wk`}</strong></div></div>
           </div>
         </div>)}
       </section>
@@ -240,22 +258,22 @@ function App() {
       <section className="projects">
         {[...data.projects].sort((a,b)=>a.priority-b.priority).map(p=>{
           const s=schedule.find(x=>x.id===p.id); return <article className="project card" key={p.id}>
-            <div className="projectTitle"><div className="icon">{p.icon}</div><div><div className="eyebrow">PRIORITY {p.priority}</div><h3>{p.name}</h3></div><div className="projectTotal">{money(s?.total)}</div></div>
+            <div className="projectTitle"><div className="icon">{p.icon}</div><div><div className="eyebrow">PRIORITY {p.priority}</div><h3>{p.name}</h3></div><div className="projectTotal">{s?.hasUnknowns?`${money(s?.total)}+`:money(s?.total)}{s?.hasUnknowns&&<small className="tbdNote"> partial estimate</small>}</div></div>
             <p className="notes">{p.notes}</p>
             {p.specs?.length > 0 && <div className="specs"><div className="specTitle">Known project details</div>{p.specs.map((spec,i)=><div className="spec" key={i}><span>✓</span><span>{spec}</span></div>)}</div>}
             <div className="parts">
               <div className="part header"><span>Part</span><span>Qty</span><span>Each</span><span>Total</span><span></span></div>
               {p.parts.map(part=><div className="part" key={part.id}>
-                <span>{part.url?<a href={part.url} target="_blank" rel="noreferrer">{part.name} ↗</a>:part.name}</span><span>{part.qty}</span><span>{money2(part.unitPrice)}</span><strong>{money2(Number(part.qty)*Number(part.unitPrice))}</strong><span></span>
+                <span>{part.url?<a href={part.url} target="_blank" rel="noreferrer">{part.name} ↗</a>:part.name}</span><span>{Number(part.qty)>0?part.qty:'TBD'}</span><span className={!partIsKnown(part)?'tbd':''}>{priceDisplay(part.unitPrice,partIsKnown(part))}</span><strong className={!partIsKnown(part)||Number(part.qty)<=0?'tbd':''}>{partIsKnown(part)&&Number(part.qty)>0?money2(Number(part.qty)*Number(part.unitPrice)):'TBD'}</strong><span></span>
               </div>)}
             </div>
-            <div className="costline"><span>Materials <strong>{money2(s?.materials)}</strong></span><span>Labor <strong>{money2(s?.labor)}</strong></span><span>Contingency <strong>{money2(s?.contingency)}</strong></span></div>
+            <div className="costline"><span>Materials <strong>{money2(s?.materials)}</strong></span><span>Labor <strong className={p.laborKnown?'':'tbd'}>{p.laborKnown?money2(s?.labor):'TBD'}</strong></span><span>Contingency <strong>{money2(s?.contingency)}</strong></span></div>
 
             {showEditor && <div className="editor">
-              <div className="editGrid"><label>Project name<input value={p.name} onChange={e=>updateProject(p.id,{name:e.target.value})}/></label><label>Priority<input type="number" value={p.priority} onChange={e=>updateProject(p.id,{priority:Number(e.target.value)})}/></label><label>Labor estimate<input type="number" value={p.labor} onChange={e=>updateProject(p.id,{labor:Number(e.target.value)})}/></label></div>
+              <div className="editGrid"><label>Project name<input value={p.name} onChange={e=>updateProject(p.id,{name:e.target.value})}/></label><label>Priority<input type="number" value={p.priority} onChange={e=>updateProject(p.id,{priority:Number(e.target.value)})}/></label><label>Labor estimate<input type="number" value={p.labor} onChange={e=>updateProject(p.id,{labor:Number(e.target.value)})}/><span className="knownToggle"><input type="checkbox" checked={p.laborKnown===true} onChange={e=>updateProject(p.id,{laborKnown:e.target.checked})}/> Quote/price confirmed</span></label></div>
               <label>Notes<textarea value={p.notes} onChange={e=>updateProject(p.id,{notes:e.target.value})}/></label>
               {p.parts.map(part=><div className="partEdit" key={part.id}>
-                <input value={part.name} onChange={e=>updatePart(p.id,part.id,{name:e.target.value})}/><input type="number" value={part.qty} onChange={e=>updatePart(p.id,part.id,{qty:Number(e.target.value)})}/><input type="number" step="0.01" value={part.unitPrice} onChange={e=>updatePart(p.id,part.id,{unitPrice:Number(e.target.value)})}/><input value={part.url} placeholder="Product link" onChange={e=>updatePart(p.id,part.id,{url:e.target.value})}/><button className="danger" onClick={()=>removePart(p.id,part.id)}>×</button>
+                <input value={part.name} onChange={e=>updatePart(p.id,part.id,{name:e.target.value})}/><input type="number" value={part.qty} onChange={e=>updatePart(p.id,part.id,{qty:Number(e.target.value)})}/><label className="priceEdit"><input type="number" step="0.01" value={part.unitPrice} onChange={e=>updatePart(p.id,part.id,{unitPrice:Number(e.target.value)})}/><span className="knownToggle"><input type="checkbox" checked={part.priceKnown===true} onChange={e=>updatePart(p.id,part.id,{priceKnown:e.target.checked})}/> Price known</span></label><input value={part.url} placeholder="Product link" onChange={e=>updatePart(p.id,part.id,{url:e.target.value})}/><button className="danger" onClick={()=>removePart(p.id,part.id)}>×</button>
               </div>)}
               <div className="editActions"><button className="secondary" onClick={()=>addPart(p.id)}>+ Add part</button><button className="textDanger" onClick={()=>removeProject(p.id)}>Remove project</button></div>
             </div>}
@@ -271,7 +289,7 @@ function App() {
         {aiText && <div className="aiOutput">{aiText}</div>}
       </section>
 
-      <footer><span>Built for our home.</span><div><button className="secondary" onClick={()=>setView('report')}>🖨️ Materials report</button><button className="secondary" onClick={exportPlan}>Export plan JSON</button><button className="secondary" onClick={()=>{localStorage.removeItem('home-project-plan');location.reload()}}>Reset demo</button></div></footer>
+      <footer><span>Built for our home.</span><div><button className="secondary" onClick={exportPlan}>Export plan JSON</button><button className="secondary" onClick={()=>{localStorage.removeItem('home-project-plan');location.reload()}}>Reset demo</button></div></footer>
     </main>
   </div>
 }
