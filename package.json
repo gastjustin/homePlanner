@@ -1,6 +1,5 @@
 {
   "name": "home-project-planner",
-  "homepage": "https://gastjustin.github.io/homePlanner",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,9 +8,7 @@
     "client": "vite --host 0.0.0.0",
     "server": "node server.js",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
@@ -24,7 +21,5 @@
     "react-dom": "latest",
     "vite": "latest"
   },
-  "devDependencies": {
-    "gh-pages": "^6.3.0"
-  }
+  "devDependencies": {}
 }

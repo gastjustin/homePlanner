@@ -8,7 +8,7 @@ const money2 = (n) => new Intl.NumberFormat('en-US', { style: 'currency', curren
 const fmtDate = (d) => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(d);
 
 const seed = {
-  schemaVersion: 7,
+  schemaVersion: 8,
   budget: { weeklyBudget: 500, startingBalance: 0, contingencyPct: 12 },
   projects: [
     {
@@ -115,7 +115,7 @@ const seed = {
       parts: [
         { id: uid(), name: 'VAXLAMP French Vintage Brass Glass Flower Chandelier — Type A 5-Light', qty: 1, unitPrice: 462.24, priceKnown: true, url: 'https://www.vaxlamp.com/products/chandelier-french-vintage-brass-glass-flower' }
       ]
-    },
+    },,
     {
       id: uid(), name: 'Bathroom Remodel', icon: '🛁', priority: 10, labor: 0, laborKnown: false,
       notes: 'Full bathroom remodel coordinated in white, marble-look surfaces, matte black fixtures, clear shower glass and light wood-look porcelain flooring. Major selected components total about $4,764; use $5,000–$5,500 as the working materials budget. Labor is TBD. Keep the basic plumbing layout unchanged where practical. Do not order the shower base until its drain rough-in is verified against DreamLine technical drawings.',
@@ -157,10 +157,8 @@ function App() {
   const [data, setData] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('home-project-plan'));
-      const isValid = stored?.schemaVersion === seed.schemaVersion
-        && Array.isArray(stored?.projects)
-        && stored.projects.every(p => p && Array.isArray(p.parts));
-      return isValid ? stored : seed;
+      const hasCurrentSeed = stored?.schemaVersion === seed.schemaVersion;
+      return hasCurrentSeed ? stored : seed;
     } catch { return seed; }
   });
   const [aiText, setAiText] = useState('');
@@ -169,8 +167,19 @@ function App() {
 
   useEffect(() => localStorage.setItem('home-project-plan', JSON.stringify(data)), [data]);
 
+  const projectEstimate = (p) => {
+    const materials = partTotal(p);
+    const subtotal = materials + Number(p.labor || 0);
+    return subtotal * (1 + Number(data.budget.contingencyPct || 0) / 100);
+  };
+
+  const orderedProjects = useMemo(() =>
+    [...data.projects].sort((a,b) => projectEstimate(a) - projectEstimate(b) || a.name.localeCompare(b.name)),
+    [data.projects, data.budget.contingencyPct]
+  );
+
   const schedule = useMemo(() => {
-    const ordered = data.projects.filter(p => p && Array.isArray(p.parts)).sort((a,b) => Number(a.priority)-Number(b.priority));
+    const ordered = orderedProjects;
     const weekly = Math.max(1, Number(data.budget.weeklyBudget || 0));
     let available = Number(data.budget.startingBalance || 0);
     let elapsedWeeks = 0;
@@ -187,7 +196,7 @@ function App() {
       const funded = new Date(today); funded.setDate(today.getDate() + elapsedWeeks * 7);
       return { id: p.id, name: p.name, materials, labor: Number(p.labor||0), contingency, total, weeks, cumulativeWeeks: elapsedWeeks, fundedDate: fmtDate(funded), hasUnknowns: projectHasUnknowns(p) };
     });
-  }, [data]);
+  }, [data, orderedProjects]);
 
   const totals = useMemo(() => schedule.reduce((a,s) => ({materials:a.materials+s.materials, labor:a.labor+s.labor, total:a.total+s.total}), {materials:0,labor:0,total:0}), [schedule]);
 
@@ -245,7 +254,7 @@ function App() {
         <div className="kpi"><span>Projects</span><strong>{data.projects.length}</strong></div>
       </section>
 
-      <section className="sectionHead"><div><div className="eyebrow">THE PLAN</div><h2>Funding timeline</h2></div><p>Projects are funded in priority order. Dates automatically recalculate when costs change.</p></section>
+      <section className="sectionHead"><div><div className="eyebrow">THE PLAN</div><h2>Funding timeline</h2></div><p>Projects are automatically funded cheapest first. The order and dates recalculate whenever costs change.</p></section>
       <section className="timeline">
         {schedule.map((s,i)=> <div className="timelineItem" key={s.id}>
           <div className="dot">{i+1}</div>
@@ -258,9 +267,9 @@ function App() {
 
       <section className="sectionHead"><div><div className="eyebrow">DETAILS</div><h2>Project breakdown</h2></div><p>Every part can have a shopping link, quantity and current price.</p></section>
       <section className="projects">
-        {[...data.projects].sort((a,b)=>a.priority-b.priority).map(p=>{
+        {orderedProjects.map((p,projectIndex)=>{
           const s=schedule.find(x=>x.id===p.id); return <article className="project card" key={p.id}>
-            <div className="projectTitle"><div className="icon">{p.icon}</div><div><div className="eyebrow">PRIORITY {p.priority}</div><h3>{p.name}</h3></div><div className="projectTotal">{s?.hasUnknowns?`${money(s?.total)}+`:money(s?.total)}{s?.hasUnknowns&&<small className="tbdNote"> partial estimate</small>}</div></div>
+            <div className="projectTitle"><div className="icon">{p.icon}</div><div><div className="eyebrow">CHEAPEST-FIRST #{projectIndex+1}</div><h3>{p.name}</h3></div><div className="projectTotal">{s?.hasUnknowns?`${money(s?.total)}+`:money(s?.total)}{s?.hasUnknowns&&<small className="tbdNote"> partial estimate</small>}</div></div>
             <p className="notes">{p.notes}</p>
             {p.specs?.length > 0 && <div className="specs"><div className="specTitle">Known project details</div>{p.specs.map((spec,i)=><div className="spec" key={i}><span>✓</span><span>{spec}</span></div>)}</div>}
             <div className="parts">
@@ -272,7 +281,7 @@ function App() {
             <div className="costline"><span>Materials <strong>{money2(s?.materials)}</strong></span><span>Labor <strong className={p.laborKnown?'':'tbd'}>{p.laborKnown?money2(s?.labor):'TBD'}</strong></span><span>Contingency <strong>{money2(s?.contingency)}</strong></span></div>
 
             {showEditor && <div className="editor">
-              <div className="editGrid"><label>Project name<input value={p.name} onChange={e=>updateProject(p.id,{name:e.target.value})}/></label><label>Priority<input type="number" value={p.priority} onChange={e=>updateProject(p.id,{priority:Number(e.target.value)})}/></label><label>Labor estimate<input type="number" value={p.labor} onChange={e=>updateProject(p.id,{labor:Number(e.target.value)})}/><span className="knownToggle"><input type="checkbox" checked={p.laborKnown===true} onChange={e=>updateProject(p.id,{laborKnown:e.target.checked})}/> Quote/price confirmed</span></label></div>
+              <div className="editGrid"><label>Project name<input value={p.name} onChange={e=>updateProject(p.id,{name:e.target.value})}/></label><label>Funding order<input value={`Automatic: #${projectIndex+1}`} disabled title="Calculated automatically from the current project estimate"/></label><label>Labor estimate<input type="number" value={p.labor} onChange={e=>updateProject(p.id,{labor:Number(e.target.value)})}/><span className="knownToggle"><input type="checkbox" checked={p.laborKnown===true} onChange={e=>updateProject(p.id,{laborKnown:e.target.checked})}/> Quote/price confirmed</span></label></div>
               <label>Notes<textarea value={p.notes} onChange={e=>updateProject(p.id,{notes:e.target.value})}/></label>
               {p.parts.map(part=><div className="partEdit" key={part.id}>
                 <input value={part.name} onChange={e=>updatePart(p.id,part.id,{name:e.target.value})}/><input type="number" value={part.qty} onChange={e=>updatePart(p.id,part.id,{qty:Number(e.target.value)})}/><label className="priceEdit"><input type="number" step="0.01" value={part.unitPrice} onChange={e=>updatePart(p.id,part.id,{unitPrice:Number(e.target.value)})}/><span className="knownToggle"><input type="checkbox" checked={part.priceKnown===true} onChange={e=>updatePart(p.id,part.id,{priceKnown:e.target.checked})}/> Price known</span></label><input value={part.url} placeholder="Product link" onChange={e=>updatePart(p.id,part.id,{url:e.target.value})}/><button className="danger" onClick={()=>removePart(p.id,part.id)}>×</button>
